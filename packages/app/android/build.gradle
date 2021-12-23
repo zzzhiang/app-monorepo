@@ -25,8 +25,12 @@ allprojects {
     repositories {
         mavenLocal()
         maven {
-            // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
-            url(new File(["node", "--print", "require.resolve('react-native/package.json')"].execute(null, rootDir).text.trim(), "../android"))
+            // Replace AAR from original RN with AAR from react-native-v8
+            url(new File(["node", "--print", "require.resolve('react-native-v8/package.json')"].execute(null, rootDir).text.trim(), "../dist"))
+        }
+        maven {
+            // prebuilt libv8android.so
+            url(new File(["node", "--print", "require.resolve('v8-android-jit/package.json')"].execute(null, rootDir).text.trim(), "../dist"))
         }
         maven {
             // Android JSC is installed from npm
