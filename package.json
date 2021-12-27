@@ -10,7 +10,7 @@
     "node": "^16.0.0"
   },
   "scripts": {
-    "postinstall": "yarn setup:env && husky install && yarn build:connect && yarn build:inject && yarn fetch:locale",
+    "postinstall": "yarn setup:env && husky install && yarn build:connect && yarn build:inject && yarn fetch:locale && patch-package",
     "build:inject": "cross-env NODE_ENV=production yarn workspace @onekeyhq/inpage-provider build",
     "watch:inject": "yarn workspace @onekeyhq/inpage-provider watch-inject",
     "build:connect": "yarn build:connect:desktop && yarn build:connect:native",
@@ -102,6 +102,8 @@
     "gulp-webpack-sourcemaps": "^0.3.2",
     "gulp-load-plugins": "^2.0.7",
     "node-notifier": "^10.0.0",
-    "eth-rpc-errors": "^4.0.3"
+    "eth-rpc-errors": "^4.0.3",
+    "babel-plugin-module-resolver": "^4.1.0",
+    "patch-package": "^6.4.7"
   }
 }
