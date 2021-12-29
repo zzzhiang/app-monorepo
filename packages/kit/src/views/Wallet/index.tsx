@@ -12,7 +12,7 @@ import {
 import { isNative } from '@onekeyhq/shared/src/platformEnv';
 
 import AccountInfo from './AccountInfo';
-import AssetsList from './AccountList';
+import AssetsList from './AssetsList';
 import Collectibles from './Collectibles';
 import HistoricalRecord from './HistoricalRecords';
 import { ScrollRoute } from './type';

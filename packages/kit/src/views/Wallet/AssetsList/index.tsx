@@ -217,7 +217,7 @@ const AssetsList = ({ route }: { route: ScrollRoute }) => {
     item,
     index,
   }) => (
-    <Pressable
+    <Pressable.Item
       p={4}
       bgColor="surface-default"
       borderTopRadius={index === 0 ? '12px' : '0px'}
@@ -228,12 +228,13 @@ const AssetsList = ({ route }: { route: ScrollRoute }) => {
     >
       <Box w="100%" flexDirection="row" alignItems="center">
         <Token
+          size={8}
           address={item.address}
           chain={item.chainId.toString()}
           src={item.logoURI}
         />
         <Box ml={3} mr={3} flexDirection="column" flex={1}>
-          <Typography.Body1 fontWeight="600" color="text-default">
+          <Typography.Body1 fontWeight="bold" color="text-default">
             {item.amount}
           </Typography.Body1>
           <Typography.Body2 color="text-subdued">
@@ -242,15 +243,15 @@ const AssetsList = ({ route }: { route: ScrollRoute }) => {
         </Box>
         {['LARGE', 'XLARGE'].includes(size) && (
           <Box ml={3} mr={20} flexDirection="row" flex={1}>
-            <Icon name="ActivityOutline" />
-            <Typography.Body1 ml={3} fontWeight="600" color="text-default">
+            <Icon size={20} name="ActivityOutline" />
+            <Typography.Body1 fontWeight="bold" ml={3} color="text-default">
               {item.fiatAmount}
             </Typography.Body1>
           </Box>
         )}
         <Icon size={20} name="ChevronRightOutline" />
       </Box>
-    </Pressable>
+    </Pressable.Item>
   );
 
   return (
@@ -264,15 +265,14 @@ const AssetsList = ({ route }: { route: ScrollRoute }) => {
             flexDirection="row"
             justifyContent="space-between"
             alignItems="center"
-            pb="4"
           >
-            <Typography.DisplayXLarge>
+            <Typography.Heading>
               {intl.formatMessage({ id: 'asset__tokens' })}
-            </Typography.DisplayXLarge>
+            </Typography.Heading>
             <ManageToken
               trigger={
-                <Pressable p={1}>
-                  <Icon name="AdjustmentsOutline" />
+                <Pressable p={1.5}>
+                  <Icon size={20} name="AdjustmentsSolid" />
                 </Pressable>
               }
             />
