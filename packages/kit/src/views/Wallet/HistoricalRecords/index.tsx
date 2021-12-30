@@ -10,7 +10,8 @@ import {
   Icon,
   Modal,
   Pressable,
-  SectionList,
+  ScrollableSectionList,
+  ScrollableSectionListProps,
   Typography,
 } from '@onekeyhq/components';
 
@@ -20,6 +21,7 @@ import TransactionRecord, {
   getTransactionStatusStr,
 } from '../../Components/transactionRecord';
 import TransactionDetails from '../../TransactionDetails';
+import { ScrollRoute } from '../type';
 
 const TRANSACTION_RECORDS_DATA: Transaction[] = [
   {
@@ -112,51 +114,46 @@ const TRANSACTION_RECORDS_DATA: Transaction[] = [
   },
 ];
 
-const HistoricalRecords = () => {
+type TransactionGroup = { title: string; data: Transaction[] };
+
+const toTransactionSection = (_data: Transaction[]): TransactionGroup[] => {
+  const sortData = _data.sort((a, b) => b.date.getTime() - a.date.getTime());
+  return sortData.reduce((_pre: TransactionGroup[], _current: Transaction) => {
+    let key = 'QUEUE';
+    if (_current.state === 'pending') {
+      key = 'QUEUE';
+    } else {
+      key = formatMonth(_current.date);
+    }
+
+    let dateGroup = _pre.find((x) => x.title === key);
+    if (!dateGroup) {
+      dateGroup = { title: key, data: [] };
+      _pre.push(dateGroup);
+    }
+    dateGroup.data.push(_current);
+    return _pre;
+  }, []);
+};
+
+const HistoricalRecords = ({ route }: { route: ScrollRoute }) => {
+  const tabPageIndex = route.index;
   const intl = useIntl();
   const [detailsVisible, setDetailsVisible] = useState(false);
   const [detailsInfo, setDetailsInfo] = useState<Transaction>();
   const [transactionRecords, setTransactionRecords] = useState<
     TransactionGroup[]
   >([]);
-  type TransactionGroup = { title: string; data: Transaction[] };
-
-  const handleData = (_data: Transaction[]) => {
-    const sortData = _data.sort((a, b) => b.date.getTime() - a.date.getTime());
-    return sortData.reduce(
-      (_pre: TransactionGroup[], _current: Transaction) => {
-        let key = 'QUEUE';
-        if (_current.state === 'pending') {
-          key = 'QUEUE';
-        } else {
-          key = formatMonth(_current.date).toUpperCase();
-        }
-
-        let dateGroup = _pre.find((x) => x.title === key);
-        if (!dateGroup) {
-          dateGroup = { title: key, data: [] };
-          _pre.push(dateGroup);
-        }
-        dateGroup.data.push(_current);
-        return _pre;
-      },
-      [],
-    );
-  };
 
   useEffect(() => {
-    setTransactionRecords(handleData(TRANSACTION_RECORDS_DATA));
+    setTransactionRecords(toTransactionSection(TRANSACTION_RECORDS_DATA));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const renderItem = ({
+  const renderItem: ScrollableSectionListProps<Transaction>['renderItem'] = ({
     item,
     index,
     section,
-  }: {
-    item: Transaction;
-    index: number;
-    section: { data: [] };
   }) => (
     <Pressable
       bg="surface-default"
@@ -172,20 +169,38 @@ const HistoricalRecords = () => {
     </Pressable>
   );
 
-  const renderSectionHeader = ({
-    section: { title, data },
-  }: {
-    section: { title: string; data: Transaction[] };
-  }) => (
-    <Box pb={2} pt={5} flexDirection="row" alignItems="center">
-      <Typography.Subheading color="text-subdued">
-        {title}
-      </Typography.Subheading>
-      {data[0] != null && data[0].state === 'pending' && (
-        <Box ml={3}>
-          <Badge title={data.length.toString()} type="Default" size="sm" />
-        </Box>
-      )}
+  const renderSectionHeader: ScrollableSectionListProps<Transaction>['renderSectionHeader'] =
+    ({ section: { title, data } }) => (
+      <Box pb={2} pt={5} flexDirection="row" alignItems="center">
+        <Typography.Subheading color="text-subdued">
+          {title}
+        </Typography.Subheading>
+        {data[0] != null && data[0].state === 'pending' && (
+          <Box ml={3}>
+            <Badge title={data.length.toString()} type="Default" size="sm" />
+          </Box>
+        )}
+      </Box>
+    );
+
+  const renderHeader = () => (
+    <Box
+      flexDirection="row"
+      justifyContent="space-between"
+      alignItems="center"
+      pb={4}
+    >
+      <Typography.DisplayXLarge>
+        {intl.formatMessage({ id: 'transaction__history' })}
+      </Typography.DisplayXLarge>
+      <Pressable
+        p={1}
+        onPress={() => {
+          console.log('Click Jump block browser');
+        }}
+      >
+        <Icon name="ExternalLinkOutline" />
+      </Pressable>
     </Box>
   );
 
@@ -195,41 +210,29 @@ const HistoricalRecords = () => {
         icon={<Icon name="DatabaseOutline" size={48} />}
         title={intl.formatMessage({ id: 'transaction__history_empty_title' })}
         subTitle={intl.formatMessage({ id: 'transaction__history_empty_desc' })}
+        actionTitle={intl.formatMessage({ id: 'action__reset' })}
+        handleAction={() => {
+          setTransactionRecords(toTransactionSection(TRANSACTION_RECORDS_DATA));
+        }}
       />
     </Box>
   );
 
   return (
-    <Box flex={1} pt={4} pr={4} pl={4}>
-      <Box
-        flexDirection="row"
-        justifyContent="space-between"
-        alignItems="center"
-      >
-        <Typography.DisplayXLarge>
-          {intl.formatMessage({ id: 'transaction__history' })}
-        </Typography.DisplayXLarge>
-        <Pressable
-          p={1}
-          onPress={() => {
-            console.log('Click Jump block browser');
-          }}
-        >
-          <Icon name="ExternalLinkOutline" />
-        </Pressable>
+    <>
+      <Box flex={1} p={4}>
+        <ScrollableSectionList<Transaction>
+          index={tabPageIndex}
+          sections={transactionRecords}
+          renderItem={renderItem}
+          renderSectionHeader={renderSectionHeader}
+          ListHeaderComponent={renderHeader}
+          ListEmptyComponent={renderEmpty}
+          ItemSeparatorComponent={() => <Divider />}
+          keyExtractor={(_, index: number) => index.toString()}
+          showsVerticalScrollIndicator={false}
+        />
       </Box>
-      <SectionList
-        mb={3}
-        sections={transactionRecords}
-        renderItem={renderItem}
-        renderSectionHeader={renderSectionHeader}
-        ListEmptyComponent={renderEmpty}
-        ItemSeparatorComponent={() => <Divider />}
-        keyExtractor={(_item: TransactionGroup, index: number) =>
-          index.toString()
-        }
-        showsVerticalScrollIndicator={false}
-      />
       <Modal
         footer={<Box />}
         header={getTransactionStatusStr(intl, detailsInfo?.state)}
@@ -238,7 +241,7 @@ const HistoricalRecords = () => {
       >
         <TransactionDetails txId={detailsInfo?.txId ?? ''} />
       </Modal>
-    </Box>
+    </>
   );
 };
 
