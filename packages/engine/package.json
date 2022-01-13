@@ -1,7 +1,7 @@
 {
   "name": "@onekeyhq/engine",
   "version": "0.0.1",
-  "main": "./dist/index.js",
+  "main": "src/index.ts",
   "license": "Apache-2.0",
   "private": true,
   "scripts": {
@@ -14,13 +14,42 @@
     "fix:lint": "eslint src --ext .ts --fix"
   },
   "devDependencies": {
+    "@types/bs58": "^4.0.1",
+    "@types/elliptic": "^6.4.14",
     "@types/node": "^17.0.2",
     "npm-run-all": "^4.1.5"
   },
   "dependencies": {
-    "@onekeyhq/blockchain-libs": "^0.0.16",
+    "@onekeyhq/blockchain-libs": "file:./onekeyhq-blockchain-libs-v0.0.16.tgz",
     "@sushiswap/default-token-list": "^20.17.0",
-    "bignumber.js": "^9.0.1",
+    "bignumber.js": "^9.0.2",
+    "bip39": "^3.0.4",
+    "bs58": "^4.0.1",
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.0",
+    "elliptic": "^6.5.4",
     "fake-indexeddb": "^3.1.7"
+  },
+  "react-native": {
+    "console": "console-browserify",
+    "crypto": "react-native-crypto",
+    "_stream_transform": "readable-stream/transform",
+    "_stream_readable": "readable-stream/readable",
+    "_stream_writable": "readable-stream/writable",
+    "_stream_duplex": "readable-stream/duplex",
+    "_stream_passthrough": "readable-stream/passthrough",
+    "stream": "stream-browserify",
+    "./src/db": "./src/dbrealm"
+  },
+  "browser": {
+    "console": "console-browserify",
+    "crypto": "react-native-crypto",
+    "_stream_transform": "readable-stream/transform",
+    "_stream_readable": "readable-stream/readable",
+    "_stream_writable": "readable-stream/writable",
+    "_stream_duplex": "readable-stream/duplex",
+    "_stream_passthrough": "readable-stream/passthrough",
+    "stream": "stream-browserify",
+    "realm": false
   }
 }

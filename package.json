@@ -10,7 +10,7 @@
     "node": "^16.0.0"
   },
   "scripts": {
-    "postinstall": "yarn setup:env && husky install && yarn build:connect && yarn build:inject && yarn fetch:locale && patch-package",
+    "postinstall": "yarn setup:env && husky install && yarn build:connect && yarn build:inject && yarn fetch:locale",
     "build:inject": "yarn workspace @onekeyhq/inpage-provider build",
     "watch:inject": "yarn workspace @onekeyhq/inpage-provider watch-inject",
     "build:connect": "yarn build:connect:desktop && yarn build:connect:native",
@@ -23,7 +23,7 @@
     "ios": "yarn workspace @onekeyhq/app ios",
     "ios-install": "cd ./packages/app/ios && pod install && cd -",
     "ios-xcode": "open ./packages/app/ios/OneKeyWallet.xcworkspace",
-    "android": "yarn workspace @onekeyhq/app android",
+    "android": "patch-package && yarn workspace @onekeyhq/app android",
     "web": "yarn workspace @onekeyhq/web start",
     "firefox": "yarn workspace @onekeyhq/ext firefox",
     "ext": "yarn workspace @onekeyhq/ext start",

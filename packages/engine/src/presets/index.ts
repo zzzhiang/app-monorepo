@@ -6,19 +6,20 @@ import evmTokenList from '@sushiswap/default-token-list';
 import { PresetNetwork } from '../types/network';
 import { Token } from '../types/token';
 
-import _presetNetworks from './networks.json';
+import presetNetworksList from './networks.json';
 
 // TODO: update from remote config?
+// TODO: desc order is expected in network list
 
 const presetNetworks: Record<string, PresetNetwork> = {};
 const presetTokens: Record<string, Record<string, Token>> = {};
 
-_presetNetworks.forEach((network: PresetNetwork) => {
+presetNetworksList.forEach((network: PresetNetwork) => {
   presetNetworks[network.id] = network;
   presetTokens[network.id] = {};
 });
 
-evmTokenList.tokens.forEach((t) => {
+evmTokenList.tokens.forEach((t: any) => {
   const chainId = t.chainId.toString();
   const networkId = `evm--${chainId}-${chainId}`;
   if (typeof presetTokens[networkId] === 'undefined') {
@@ -60,8 +61,9 @@ function getPresetTokensOnNetwork(networkId: string): Array<Token> {
 }
 
 export {
-  presetNetworks,
   networkIsPreset,
   getPresetToken,
+  presetNetworksList,
+  presetNetworks,
   getPresetTokensOnNetwork,
 };

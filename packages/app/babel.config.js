@@ -15,6 +15,8 @@ module.exports = function (api) {
           },
         },
       ],
+      '@babel/plugin-proposal-numeric-separator',
+      '@babel/plugin-transform-literals',
     ],
   });
 };

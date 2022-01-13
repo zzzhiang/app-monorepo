@@ -5,6 +5,7 @@
   "main": "src/index.tsx",
   "dependencies": {
     "@onekeyhq/components": "*",
+    "@onekeyhq/blockchain-libs": "^0.0.16",
     "@onekeyfe/connect": "8.7.0-extended",
     "@reduxjs/toolkit": "^1.6.2",
     "date-fns": "^2.27.0",
@@ -12,8 +13,7 @@
     "expo-clipboard": "2.0.3",
     "react-intl": "^5.21.2",
     "react-native-url-polyfill": "^1.3.0",
-    "react-redux": "^7.2.6",
-    "realm": "^10.20.0-alpha.2"
+    "react-redux": "^7.2.6"
   },
   "devDependencies": {},
   "scripts": {
