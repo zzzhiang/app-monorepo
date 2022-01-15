@@ -17,24 +17,23 @@ import {
   NotImplemented,
   OneKeyInternalError,
   WrongPassword,
-} from '../errors';
-import { presetNetworks } from '../presets';
+} from '../../errors';
+import { presetNetworks } from '../../presets';
 import {
   ACCOUNT_TYPE_SIMPLE,
   DBAccount,
   DBSimpleAccount,
-} from '../types/account';
-import { DBNetwork, UpdateNetworkParams } from '../types/network';
-import { Token } from '../types/token';
+} from '../../types/account';
+import { DBNetwork, UpdateNetworkParams } from '../../types/network';
+import { Token } from '../../types/token';
 import {
   DBWallet,
   WALLET_TYPE_HD,
   WALLET_TYPE_HW,
   WALLET_TYPE_IMPORTED,
   WALLET_TYPE_WATCHING,
-} from '../types/wallet';
-
-import { DBAPI } from './base';
+} from '../../types/wallet';
+import { DBAPI, ExportedCredential } from '../base';
 
 type TokenBinding = {
   accountId: string;
@@ -791,10 +790,10 @@ class FakeDB implements DBAPI {
     );
   }
 
-  private getCredential(
+  getCredential(
     walletId: string,
     password: string,
-  ): Promise<StoredCredential> {
+  ): Promise<ExportedCredential> {
     return this.ready.then(
       (db) =>
         new Promise((resolve, reject) => {
@@ -824,32 +823,26 @@ class FakeDB implements DBAPI {
                 );
                 return;
               }
-              resolve(
-                JSON.parse(
-                  (
-                    getCredentialRequest.result as {
-                      id: string;
-                      credential: string;
-                    }
-                  ).credential,
-                ),
+              const credentialJSON = JSON.parse(
+                (
+                  getCredentialRequest.result as {
+                    id: string;
+                    credential: string;
+                  }
+                ).credential,
               );
+              return Promise.resolve({
+                mnemonic: mnemonicFromEntropy(
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                  Buffer.from(credentialJSON.entropy, 'hex'),
+                  password,
+                ),
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                seed: Buffer.from(credentialJSON.seed, 'hex'),
+              });
             };
           };
         }),
-    );
-  }
-
-  revealHDWalletSeed(walletId: string, password: string): Promise<string> {
-    return this.getCredential(walletId, password).then(
-      (credential: StoredCredential) =>
-        mnemonicFromEntropy(Buffer.from(credential.entropy, 'hex'), password),
-    );
-  }
-
-  getSeed(walletId: string, password: string): Promise<Buffer> {
-    return this.getCredential(walletId, password).then(
-      (credential: StoredCredential) => Buffer.from(credential.seed, 'hex'),
     );
   }
 
@@ -1152,7 +1145,7 @@ class FakeDB implements DBAPI {
               reject(new NotImplemented());
               return;
             }
-            (account as DBSimpleAccount).address = address;
+            account.address = address;
             accountStore.put(account);
             resolve(account);
           };

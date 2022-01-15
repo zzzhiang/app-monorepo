@@ -1,0 +1,28 @@
+diff --git a/node_modules/@onekeyhq/blockchain-libs/dist/provider/index.js b/node_modules/@onekeyhq/blockchain-libs/dist/provider/index.js
+index dffd0f9..a7d4829 100644
+--- a/node_modules/@onekeyhq/blockchain-libs/dist/provider/index.js
++++ b/node_modules/@onekeyhq/blockchain-libs/dist/provider/index.js
+@@ -8,7 +8,7 @@ const IMPLS = {
+     cfx: require('./chains/cfx'),
+     cosmos: require('./chains/cosmos'),
+     eth: require('./chains/eth'),
+-    sol: require('./chains/sol'),
++    //sol: require('./chains/sol'),
+     stc: require('./chains/stc'),
+ };
+ class ProviderController {
+diff --git a/node_modules/@onekeyhq/blockchain-libs/dist/secret/bip32.js b/node_modules/@onekeyhq/blockchain-libs/dist/secret/bip32.js
+index 3f8a45b..1e84dcf 100644
+--- a/node_modules/@onekeyhq/blockchain-libs/dist/secret/bip32.js
++++ b/node_modules/@onekeyhq/blockchain-libs/dist/secret/bip32.js
+@@ -5,7 +5,9 @@ const hash_1 = require("./hash");
+ const BigInt_0 = BigInt(0);
+ const BigInt_1 = BigInt(1);
+ function serNum(p, bits) {
+-    if (p < BigInt_0 || p >= BigInt_1 << BigInt(bits)) {
++    // fallback to big-integer
++    if (p < BigInt_0 || p >= BigInt(2 ** bits)) {
++        console.log(p, bits);
+         throw Error('Overflowed.');
+     }
+     const size = bits / 8;

@@ -1,12 +1,51 @@
 import { Buffer } from 'buffer';
 
 import { RevealableSeed } from '@onekeyhq/blockchain-libs/dist/secret';
+import {
+  decrypt,
+  encrypt,
+} from '@onekeyhq/blockchain-libs/dist/secret/encryptors/aes256';
 
 import { DBAccount } from '../types/account';
 import { DBNetwork, UpdateNetworkParams } from '../types/network';
 import { Token } from '../types/token';
 import { DBWallet } from '../types/wallet';
 
+type OneKeyContext = {
+  id: string;
+  nextHD: number;
+  verifyString: string;
+};
+
+type StoredCredential = {
+  entropy: string;
+  seed: string;
+};
+
+type ExportedCredential = {
+  mnemonic: string;
+  seed: Buffer;
+};
+
+const DEFAULT_VERIFY_STRING = 'OneKey';
+
+function checkPassword(context: OneKeyContext, password: string): boolean {
+  if (typeof context === 'undefined') {
+    console.error('Unable to get main context.');
+    return false;
+  }
+  if (context.verifyString === DEFAULT_VERIFY_STRING) {
+    return true;
+  }
+  try {
+    return (
+      decrypt(password, Buffer.from(context.verifyString, 'hex')).toString() ===
+      DEFAULT_VERIFY_STRING
+    );
+  } catch {
+    return false;
+  }
+}
 interface DBAPI {
   listNetworks(): Promise<Array<DBNetwork>>;
   addNetwork(network: DBNetwork): Promise<DBNetwork>;
@@ -33,8 +72,10 @@ interface DBAPI {
   ): Promise<DBWallet>;
   removeWallet(walletId: string, password: string): Promise<void>;
   setWalletName(walletId: string, name: string): Promise<DBWallet>;
-  revealHDWalletSeed(walletId: string, password: string): Promise<string>;
-  getSeed(walletId: string, password: string): Promise<Buffer>;
+  getCredential(
+    walletId: string,
+    password: string,
+  ): Promise<ExportedCredential>;
   confirmHDWalletBackuped(walletId: string): Promise<DBWallet>;
 
   addAccountToWallet(walletId: string, account: DBAccount): Promise<DBAccount>;
@@ -53,4 +94,5 @@ interface DBAPI {
   ): Promise<DBAccount>;
 }
 
-export type { DBAPI };
+export type { DBAPI, OneKeyContext, StoredCredential, ExportedCredential };
+export { checkPassword, DEFAULT_VERIFY_STRING, encrypt };

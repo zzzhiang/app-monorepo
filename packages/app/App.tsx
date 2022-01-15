@@ -1,3 +1,9 @@
+/* eslint-disable import/first */
+/* eslint-disable import/order */
+
+// hack node build in crypto
+import './shim';
+
 import React, { FC } from 'react';
 
 import 'expo-dev-client';

@@ -4,8 +4,9 @@
   "private": true,
   "main": "src/index.tsx",
   "dependencies": {
-    "@onekeyfe/connect": "8.7.0-extended",
     "@onekeyhq/components": "*",
+    "@onekeyhq/engine": "*",
+    "@onekeyfe/connect": "8.7.0-extended",
     "@reduxjs/toolkit": "^1.6.2",
     "date-fns": "^2.27.0",
     "expo-barcode-scanner": "^11.2.0",
@@ -14,8 +15,7 @@
     "react-native-url-polyfill": "^1.3.0",
     "react-native-uuid": "^2.0.1",
     "react-redux": "^7.2.6",
-    "redux-persist": "^6.0.0",
-    "realm": "^10.20.0-alpha.2"
+    "redux-persist": "^6.0.0"
   },
   "devDependencies": {},
   "scripts": {

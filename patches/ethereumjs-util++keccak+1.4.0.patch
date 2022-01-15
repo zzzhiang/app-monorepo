@@ -1,0 +1,24 @@
+diff --git a/node_modules/ethereumjs-util/node_modules/keccak/lib/api/keccak.js b/node_modules/ethereumjs-util/node_modules/keccak/lib/api/keccak.js
+index fe384e3..2623edc 100644
+--- a/node_modules/ethereumjs-util/node_modules/keccak/lib/api/keccak.js
++++ b/node_modules/ethereumjs-util/node_modules/keccak/lib/api/keccak.js
+@@ -1,6 +1,6 @@
+ 'use strict'
+ var Buffer = require('safe-buffer').Buffer
+-var Transform = require('stream').Transform
++var Transform = require('readable-stream').Transform
+ var inherits = require('inherits')
+ 
+ module.exports = function (KeccakState) {
+diff --git a/node_modules/ethereumjs-util/node_modules/keccak/lib/api/shake.js b/node_modules/ethereumjs-util/node_modules/keccak/lib/api/shake.js
+index 103d802..f363bf5 100644
+--- a/node_modules/ethereumjs-util/node_modules/keccak/lib/api/shake.js
++++ b/node_modules/ethereumjs-util/node_modules/keccak/lib/api/shake.js
+@@ -1,6 +1,6 @@
+ 'use strict'
+ var Buffer = require('safe-buffer').Buffer
+-var Transform = require('stream').Transform
++var Transform = require('readable-stream').Transform
+ var inherits = require('inherits')
+ 
+ module.exports = function (KeccakState) {
