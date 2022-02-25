@@ -14,6 +14,8 @@ import * as Location from 'expo-location';
 import { Buffer } from 'buffer';
 import state from './state';
 
+import platformEnv from '@onekeyhq/shared/src/platformEnv';
+
 const SERVICE_ID = '00000001-0000-1000-8000-00805f9b34fb';
 const WRITE_NO_RESPONSE_ID = '00000002-0000-1000-8000-00805f9b34fb';
 const NOTIFICATION_ID = '00000003-0000-1000-8000-00805f9b34fb';
@@ -243,6 +245,6 @@ class BleUtils {
   }
 }
 
-const bleUtils = new BleUtils();
+const bleUtils = platformEnv.isNative ? new BleUtils() : null;
 
 export default bleUtils;
