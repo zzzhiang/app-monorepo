@@ -6,8 +6,7 @@ import bleUtils from './utils';
 class BleOnekeyConnect {
   initialized = false;
 
-  async init(): Promise<boolean> {
-    const bleMac = 'E2:DA:EE:36:7C:4A';
+  async init(bleMac): Promise<boolean> {
     await bleUtils.connect(bleMac);
     if (!this.initialized) {
       // OneKeyConnect.on('UI_EVENT', (event) => {

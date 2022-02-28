@@ -2,6 +2,9 @@ import React, { FC, useMemo } from 'react';
 
 import { useNavigation } from '@react-navigation/core';
 import { useIntl } from 'react-intl';
+import BigNumber from 'bignumber.js';
+
+import OneKeyConnect from '@onekeyfe/connect';
 
 import { Box, Form, Modal, useForm, useToast } from '@onekeyhq/components';
 import FormChainSelector from '@onekeyhq/kit/src/components/Form/ChainSelector';
@@ -12,10 +15,13 @@ import {
 } from '@onekeyhq/kit/src/routes';
 import { setRefreshTS } from '@onekeyhq/kit/src/store/reducers/settings';
 import { setBoardingCompleted } from '@onekeyhq/kit/src/store/reducers/status';
+import bleUtils from '@onekeyhq/kit/src/utils/ble/utils';
+import { bleOnekeyConnect } from '@onekeyhq/kit/src/utils/ble/connect';
 
 import backgroundApiProxy from '../../../background/instance/backgroundApiProxy';
 
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
 
 type NavigationProps = NativeStackNavigationProp<
   CreateAccountRoutesParams,
@@ -50,6 +56,30 @@ const WatchedAccount: FC = () => {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
+      if (data.address === 'scan') {
+        bleUtils.startDeviceScan((device) => {console.error(device.id, device.name)});
+        navigation.goBack();
+      } else if (data.address.startsWith('connect')) {
+        const bleMac = data.address.split(' ')[1];
+        const result = await bleOnekeyConnect.init(bleMac);
+        if (result === true) {
+          const features = (await OneKeyConnect.getFeatures()).payload;
+          await backgroundApiProxy.engine.upsertDevice(features, bleMac);
+          const wallet = await backgroundApiProxy.engine.createHWWallet('Test HW Wallet');
+          const account = await backgroundApiProxy.engine.addHDAccount('ANY', wallet.id, data.network);
+          console.error(account.address);
+          console.error(account);
+        }
+        navigation.goBack();
+      } else if (data.address.startsWith('send')) {
+        const networkId = 'evm--3';
+        const [send, accountId, to] = data.address.split(' ');
+        const value = '2';
+        const limit = await backgroundApiProxy.engine.prepareTransfer(networkId, accountId, to, value);
+        const gasPrices = await backgroundApiProxy.engine.getGasPrice(networkId);
+        const {txid, success} = await backgroundApiProxy.engine.transfer('ANY', networkId, accountId, to, value, gasPrices[1].maxFeePerGas, limit);
+        console.error(txid, success);
+      }
       const walletList = wallets.filter((wallet) => wallet.type === 'watching');
       const wallet = walletList[0];
       const createdAccount = await backgroundApiProxy.engine.addWatchingAccount(
@@ -83,6 +113,7 @@ const WatchedAccount: FC = () => {
 
       navigation.goBack();
     } catch (e) {
+      console.error(e);
       const errorKey = (e as { key: string }).key;
       toast.show({
         title: intl.formatMessage({ id: errorKey }),
