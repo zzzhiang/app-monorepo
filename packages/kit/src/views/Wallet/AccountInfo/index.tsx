@@ -8,10 +8,13 @@ import { useIntl } from 'react-intl';
 import {
   Box,
   Button,
+  Icon,
   IconButton,
+  Pressable,
   Typography,
   useIsVerticalLayout,
 } from '@onekeyhq/components';
+import { Text } from '@onekeyhq/components/src/Typography';
 import {
   FormatBalance,
   FormatCurrency,
@@ -36,8 +39,8 @@ import { SendRoutes, SendRoutesParams } from '../../Send/types';
 type NavigationProps = ModalScreenProps<ReceiveTokenRoutesParams> &
   ModalScreenProps<SendRoutesParams>;
 
-export const FIXED_VERTICAL_HEADER_HEIGHT = 222;
-export const FIXED_HORIZONTAL_HEDER_HEIGHT = 190;
+export const FIXED_VERTICAL_HEADER_HEIGHT = 258;
+export const FIXED_HORIZONTAL_HEDER_HEIGHT = 214;
 
 type AccountAmountInfoProps = { isCenter: boolean };
 const AccountAmountInfo: FC<AccountAmountInfoProps> = ({ isCenter }) => {
@@ -77,6 +80,24 @@ const AccountAmountInfo: FC<AccountAmountInfoProps> = ({ isCenter }) => {
           </Typography.Body2>
         )}
       />
+      <Pressable mt={4}>
+        {({ isHovered }) => (
+          <Box
+            py={{ base: 2, md: 1 }}
+            px={{ base: 3, md: 2 }}
+            rounded="xl"
+            bg={
+              isHovered ? 'surface-neutral-default' : 'surface-neutral-subdued'
+            }
+            flexDirection="row"
+          >
+            <Text typography={{ sm: 'Body2', md: 'CaptionStrong' }} mr={2}>
+              0xa3C6...4551
+            </Text>
+            <Icon name="DuplicateSolid" size={isCenter ? 20 : 16} />
+          </Box>
+        )}
+      </Pressable>
     </Box>
   );
 };
