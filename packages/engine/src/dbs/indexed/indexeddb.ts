@@ -1505,6 +1505,21 @@ class IndexedDBApi implements DBAPI {
         }),
     );
   }
+
+  getDevice(deviceId: string): Promise<Device> {
+    return this.ready.then(
+      (db) =>
+        new Promise((resolve, _reject) => {
+          const request = db
+            .transaction([DEVICE_STORE_NAME])
+            .objectStore(DEVICE_STORE_NAME)
+            .get(deviceId);
+          request.onsuccess = (_event) => {
+            resolve(request.result as Device);
+          };
+        }),
+    );
+  }
 }
 
 export { IndexedDBApi };

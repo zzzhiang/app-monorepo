@@ -1393,12 +1393,6 @@ class Engine {
     return Promise.resolve();
   }
 
-  /**
-   * store device info
-   * @param features
-   * @param mac the identifier of the device(mac address if android, uuid if ios)
-   * @returns
-   */
   @backgroundMethod()
   upsertDevice(features: Features, mac: string): Promise<void> {
     const id = features.onekey_serial ?? features.serial_no ?? '';
@@ -1408,6 +1402,12 @@ class Engine {
     const name =
       features.ble_name ?? features.label ?? `OneKey ${id.slice(-4)}`;
     return this.dbApi.upsertDevice(id, name, mac, JSON.stringify(features));
+  }
+
+  @backgroundMethod()
+  async getDeviceMac(deviceId: string): Promise<string> {
+    const device = await this.dbApi.getDevice(deviceId);
+    return Promise.resolve(device.mac);
   }
 }
 

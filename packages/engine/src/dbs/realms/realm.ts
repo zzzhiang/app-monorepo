@@ -1310,5 +1310,23 @@ class RealmDB implements DBAPI {
       return Promise.reject(new OneKeyInternalError(error));
     }
   }
+
+  getDevice(deviceId: string): Promise<Device> {
+    try {
+      const device = this.realm!.objectForPrimaryKey<DeviceSchema>(
+        'Device',
+        deviceId,
+      );
+      if (typeof device === 'undefined') {
+        return Promise.reject(
+          new OneKeyInternalError(`Device ${deviceId} not found.`),
+        );
+      }
+      return Promise.resolve(device.internalObj);
+    } catch (error: any) {
+      console.error(error);
+      return Promise.reject(new OneKeyInternalError(error));
+    }
+  }
 }
 export { RealmDB };
