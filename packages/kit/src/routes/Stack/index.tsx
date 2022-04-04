@@ -97,6 +97,7 @@ const MainScreen = () => {
   const { appLockDuration, enableAppLock } = useSettings();
   const { lastActivity, isUnlock } = useStatus();
   const { isUnlock: isDataUnlock, isPasswordSet } = useData();
+  const preconditon = isPasswordSet && enableAppLock;
 
   const refresh = useCallback(() => {
     if (AppState.currentState === 'active') {
@@ -128,7 +129,7 @@ const MainScreen = () => {
   );
 
   useEffect(() => {
-    if (!platformEnv.isNative) {
+    if (!platformEnv.isNative || !preconditon) {
       return;
     }
     const subscription = AppState.addEventListener('change', onChange);
@@ -136,10 +137,10 @@ const MainScreen = () => {
       // @ts-ignore
       subscription?.remove();
     };
-  }, [dispatch, onChange]);
+  }, [dispatch, onChange, preconditon]);
 
   useEffect(() => {
-    if (platformEnv.isNative) {
+    if (platformEnv.isNative || !preconditon) {
       return;
     }
     const idleDuration = Math.floor((Date.now() - lastActivity) / (1000 * 60));
@@ -150,7 +151,7 @@ const MainScreen = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!isPasswordSet || !enableAppLock) {
+  if (!preconditon) {
     return <Dashboard />;
   }
   return isUnlock && isDataUnlock ? <Dashboard /> : <Unlock />;
