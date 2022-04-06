@@ -11,7 +11,7 @@ import {
   CreateWalletRoutesParams,
 } from '@onekeyhq/kit/src/routes/Modal/CreateWallet';
 
-import { useToast } from '../../../hooks';
+import { useDrawer, useToast } from '../../../hooks';
 
 type RouteProps = RouteProp<
   CreateWalletRoutesParams,
@@ -29,6 +29,7 @@ const Done: FC<DoneProps> = ({ privatekey, name, networkId, password }) => {
   const { serviceApp } = backgroundApiProxy;
   const intl = useIntl();
   const toast = useToast();
+  const { closeDrawer } = useDrawer();
   const navigation = useNavigation();
   useEffect(() => {
     async function main() {
@@ -39,6 +40,7 @@ const Done: FC<DoneProps> = ({ privatekey, name, networkId, password }) => {
           privatekey,
           name,
         );
+        closeDrawer();
         const inst = navigation.getParent() || navigation;
         inst.goBack();
       } catch (e) {
