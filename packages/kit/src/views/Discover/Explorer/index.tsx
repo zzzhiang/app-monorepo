@@ -1,5 +1,6 @@
 import React, { FC, useEffect, useMemo, useState } from 'react';
 
+import { IWebViewWrapperRef } from '@onekeyfe/onekey-cross-webview';
 import { useIntl } from 'react-intl';
 import { Platform, Share } from 'react-native';
 
@@ -12,6 +13,7 @@ import { copyToClipboard } from '@onekeyhq/kit/src/utils/ClipboardUtils';
 import Desktop from './Content/Desktop';
 import Mobile from './Content/Mobile';
 import MoreMenuView from './MoreMenu';
+import { useWebviewRef } from './useWebviewRef';
 
 export type ExplorerViewProps = {
   displayInitialPage?: boolean;
@@ -31,14 +33,22 @@ const Explorer: FC = () => {
   const intl = useIntl();
   const openBrowser = useOpenBrowser();
   const toast = useToast();
+  const [navigationStateChangeEvent, setNavigationStateChangeEvent] = useState<
+    any | null
+  >(null);
+  const [webviewRef, setWebviewRef] = useState<IWebViewWrapperRef | null>(null);
 
+  const {
+    canGoBack: webCanGoBack,
+    goBack,
+    canGoForward: webCanGoForward,
+    goForward,
+    title: webTitle,
+    url: webUrl,
+  } = useWebviewRef(webviewRef, navigationStateChangeEvent);
   const [visibleMore, setVisibleMore] = useState(false);
 
   const [displayInitialPage, setDisplayInitialPage] = useState(true);
-  // 后退的栈
-  const [urlStack, setUrlStack] = useState<string[]>([]);
-  // 前进的栈
-  const [urlPreStack, setUrlPreStack] = useState<string[]>([]);
 
   const [searchContent, setSearchContent] = useState<string | undefined>();
   const [currentUrl, setCurrentUrl] = useState<string | undefined>();
@@ -46,48 +56,23 @@ const Explorer: FC = () => {
   const isSmallLayout = useIsSmallLayout();
 
   const pushStackUrl = (url: string) => {
-    setUrlStack([...urlStack, url]);
-  };
-
-  const popStackUrl = () => {
-    if (urlStack.length >= 1) {
-      const url = urlStack.pop();
-      const stack = [...urlStack];
-      setUrlStack(stack);
-      return url;
-    }
-    return null;
-  };
-
-  const pushPreStackUrl = (url: string) => {
-    setUrlPreStack([...urlPreStack, url]);
-  };
-
-  const popPreStackUrl = () => {
-    if (urlPreStack.length >= 1) {
-      const url = urlPreStack.pop();
-      const stack = [...urlPreStack];
-      setUrlPreStack(stack);
-      return url;
-    }
-    return null;
+    setDisplayInitialPage(false);
+    setCurrentUrl(url);
   };
 
   useEffect(() => {
-    if (urlStack.length === 0) {
-      setDisplayInitialPage(true);
-      setSearchContent('');
-    } else {
-      setDisplayInitialPage(false);
-      const url = urlStack[urlStack.length - 1];
-      setCurrentUrl(url);
-      setSearchContent(url);
-    }
-  }, [urlStack]);
+    console.log('Explorer useEffect webviewRef:', !!webviewRef);
+  }, [webviewRef, webviewRef?.innerRef]);
 
   useEffect(() => {
     console.log('Explorer useEffect currentUrl:', currentUrl);
   }, [currentUrl]);
+
+  useEffect(() => {
+    console.log('Explorer Title & Url:', webTitle, ' ,', webUrl);
+
+    setSearchContent(webUrl ?? '');
+  }, [webTitle, webUrl]);
 
   const onSearchSubmitEditing = (text: string) => {
     console.log('onSearchSubmitEditing', text);
@@ -108,18 +93,25 @@ const Explorer: FC = () => {
   };
 
   const onGoBack = () => {
-    const url = popStackUrl();
-    if (url) pushPreStackUrl(url);
+    console.log('onGoBack', webCanGoBack());
+
+    if (webCanGoBack()) {
+      goBack();
+    } else {
+      setDisplayInitialPage(true);
+      setSearchContent('');
+    }
 
     console.log('onGoBack');
   };
 
   const onNext = () => {
-    const url = popPreStackUrl();
-    if (url) {
-      pushStackUrl(url);
+    if (displayInitialPage === true) {
+      setDisplayInitialPage(false);
+      setSearchContent(currentUrl);
+    } else {
+      goForward();
     }
-
     console.log('onNext');
   };
 
@@ -248,7 +240,13 @@ const Explorer: FC = () => {
             </Button>
           </Center>
         ) : (
-          <WebView src={currentUrl ?? ''} openUrlInExt />
+          <WebView
+            src={currentUrl ?? ''}
+            onWebViewRef={(ref) => {
+              setWebviewRef(ref);
+            }}
+            onNavigationStateChange={setNavigationStateChangeEvent}
+          />
         )}
       </Box>
     ),

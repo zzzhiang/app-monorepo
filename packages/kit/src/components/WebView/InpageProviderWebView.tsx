@@ -9,7 +9,7 @@ import React, {
 
 import {
   IElectronWebView,
-  InpageProviderWebViewProps,
+  InpageProviderWebViewProps as InpageWebViewProps,
 } from '@onekeyfe/cross-inpage-provider-types';
 import {
   DesktopWebView,
@@ -32,9 +32,18 @@ import injectedNativeCode from './injectedNative.text-js';
 const { isDesktop, isWeb, isExtension, isNative } = platformEnv;
 const isApp = isNative;
 
+export type InpageProviderWebViewProps = InpageWebViewProps & {
+  onNavigationStateChange?: (event: any) => void;
+};
+
 const InpageProviderWebView: FC<InpageProviderWebViewProps> = forwardRef(
   (
-    { src: url = '', onSrcChange, receiveHandler }: InpageProviderWebViewProps,
+    {
+      src: url = '',
+      onSrcChange,
+      receiveHandler,
+      onNavigationStateChange,
+    }: InpageProviderWebViewProps,
     ref: any,
   ) => {
     const intl = useIntl();
@@ -173,6 +182,7 @@ const InpageProviderWebView: FC<InpageProviderWebViewProps> = forwardRef(
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 setProgress(Math.ceil(nativeEvent.progress * 100));
               }}
+              onNavigationStateChange={onNavigationStateChange}
               textInteractionEnabled={undefined}
               minimumFontSize={undefined}
             />
