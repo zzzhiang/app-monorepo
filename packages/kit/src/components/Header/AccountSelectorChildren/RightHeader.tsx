@@ -10,7 +10,6 @@ import {
   Icon,
   Select,
   Typography,
-  VStack,
   useIsVerticalLayout,
 } from '@onekeyhq/components';
 import { OnCloseCallback } from '@onekeyhq/components/src/Dialog/components/FooterButton';
@@ -64,7 +63,12 @@ const HeaderTitle: FC<RightHeaderProps> = ({ selectedWallet }) => {
   } else if (selectedWallet?.type === 'watching') {
     title = intl.formatMessage({ id: 'wallet__watched_accounts' });
   }
-  return <Typography.Body1Strong key={title}>{title}</Typography.Body1Strong>;
+  return (
+    // The lineHeight use to keep the Header has same height when switch to Imported/Watched accounts.
+    <Typography.Body1Strong flex={1} key={title} lineHeight={36}>
+      {title}
+    </Typography.Body1Strong>
+  );
 };
 
 const RightHeader: FC<RightHeaderProps> = ({ selectedWallet }) => {
@@ -73,7 +77,6 @@ const RightHeader: FC<RightHeaderProps> = ({ selectedWallet }) => {
   const navigation = useAppNavigation();
 
   const isVerticalLayout = useIsVerticalLayout();
-  const activeNetwork = useAppSelector((s) => s.general.activeNetwork);
 
   const { showVerify } = useLocalAuthenticationModal();
   const [showBackupDialog, setShowBackupDialog] = useState(false);
@@ -87,6 +90,7 @@ const RightHeader: FC<RightHeaderProps> = ({ selectedWallet }) => {
         <Icon
           name={isVerticalLayout ? 'CheckCircleOutline' : 'CheckCircleSolid'}
           color="icon-success"
+          size={isVerticalLayout ? 24 : 20}
         />
       );
     }
@@ -94,6 +98,7 @@ const RightHeader: FC<RightHeaderProps> = ({ selectedWallet }) => {
       <Icon
         name={isVerticalLayout ? 'ExclamationOutline' : 'ExclamationSolid'}
         color="icon-warning"
+        size={isVerticalLayout ? 24 : 20}
       />
     );
   }, [isVerticalLayout, selectedWallet]);
@@ -118,13 +123,7 @@ const RightHeader: FC<RightHeaderProps> = ({ selectedWallet }) => {
   return (
     <>
       <HStack py={3} px={4} space={4} alignItems="center">
-        <VStack flex={1}>
-          <HeaderTitle selectedWallet={selectedWallet} />
-          <Typography.Caption color="text-subdued">
-            {intl.formatMessage({ id: 'network__network' })}:{' '}
-            {activeNetwork?.network?.name ?? '-'}
-          </Typography.Caption>
-        </VStack>
+        <HeaderTitle selectedWallet={selectedWallet} />
         {['hd', 'normal'].includes(selectedWallet?.type ?? '') ? (
           <Select
             onChange={(_value) => {

@@ -11,16 +11,16 @@ import {
   FlatList,
   HStack,
   Icon,
-  IconButton,
   Pressable,
-  ScrollView,
+  SectionList,
   Select,
+  Token,
   Typography,
   VStack,
   useIsVerticalLayout,
   useSafeAreaInsets,
 } from '@onekeyhq/components';
-// import MiniDeviceIcon from '@onekeyhq/components/img/deviceIcon_mini.png';
+import NetworksAllIndicator from '@onekeyhq/components/img/networks_all.png';
 import type { Account as AccountEngineType } from '@onekeyhq/engine/src/types/account';
 import { Wallet } from '@onekeyhq/engine/src/types/wallet';
 import backgroundApiProxy from '@onekeyhq/kit/src/background/instance/backgroundApiProxy';
@@ -87,6 +87,51 @@ const CustomSelectTrigger: FC<CustomSelectTriggerProps> = ({
 );
 
 const AccountSelectorChildren: FC<{ isOpen?: boolean }> = ({ isOpen }) => {
+  const data = [
+    {
+      title: 'BTC',
+      chain: 'btc',
+      data: [
+        {
+          address: '0x71a3d56acbeaa50968e2b9e7a60c50d46c9420ec',
+          name: 'Account ##',
+        },
+        {
+          address: '0x71a3d56acbeaa50968e2b9e7a60c50d46c9420ec',
+          name: 'Account ##',
+        },
+      ],
+    },
+    {
+      title: 'ETH',
+      chain: 'eth',
+      data: [
+        {
+          address: '0x71a3d56acbeaa50968e2b9e7a60c50d46c9420ec',
+          name: 'Account ##',
+        },
+        {
+          address: '0x71a3d56acbeaa50968e2b9e7a60c50d46c9420ec',
+          name: 'Account ##',
+        },
+      ],
+    },
+    {
+      title: 'BSC',
+      chain: 'bsc',
+      data: [
+        {
+          address: '0x71a3d56acbeaa50968e2b9e7a60c50d46c9420ec',
+          name: 'Account ##',
+        },
+        {
+          address: '0x71a3d56acbeaa50968e2b9e7a60c50d46c9420ec',
+          name: 'Account ##',
+        },
+      ],
+    },
+  ];
+
   const intl = useIntl();
   const isVerticalLayout = useIsVerticalLayout();
   const { bottom } = useSafeAreaInsets();
@@ -281,7 +326,37 @@ const AccountSelectorChildren: FC<{ isOpen?: boolean }> = ({ isOpen }) => {
       />
       <VStack flex={1} pb={bottom}>
         <RightHeader selectedWallet={activeWallet} />
-        <FlatList
+        <Box p={2}>
+          <Select
+            title={intl.formatMessage({ id: 'network__networks' })}
+            footer={null}
+            defaultValue="all"
+            options={[
+              {
+                label: intl.formatMessage({ id: 'option__all' }),
+                value: 'all',
+                tokenProps: {
+                  chain: 'all',
+                },
+              },
+              {
+                label: 'ETH',
+                value: 'ethereum',
+                tokenProps: {
+                  chain: 'eth',
+                },
+              },
+              {
+                label: 'BSC',
+                value: 'bsc',
+                tokenProps: {
+                  chain: 'bsc',
+                },
+              },
+            ]}
+          />
+        </Box>
+        {/* <FlatList
           px={2}
           contentContainerStyle={{
             paddingBottom: 16,
@@ -328,60 +403,117 @@ const AccountSelectorChildren: FC<{ isOpen?: boolean }> = ({ isOpen }) => {
               )}
             </Pressable>
           )}
-          ListFooterComponent={
+        /> */}
+        <SectionList
+          px={2}
+          stickySectionHeadersEnabled
+          sections={data}
+          SectionSeparatorComponent={(section) => (
+            <Box h={!!section.leadingItem ? 2 : 0} />
+          )}
+          keyExtractor={(item, index) => item + index}
+          renderItem={({ item }) => (
             <Pressable
-              mt={2}
-              onPress={() => {
-                if (!activeWallet) return;
-                if (activeWallet?.type === 'imported') {
-                  return navigation.navigate(RootRoutes.Modal, {
-                    screen: ModalRoutes.CreateWallet,
-                    params: {
-                      screen: CreateWalletModalRoutes.AddExistingWalletModal,
-                      params: { mode: 'privatekey' },
-                    },
-                  });
-                }
-                if (activeWallet?.type === 'watching') {
-                  return navigation.navigate(RootRoutes.Modal, {
-                    screen: ModalRoutes.CreateWallet,
-                    params: {
-                      screen: CreateWalletModalRoutes.AddExistingWalletModal,
-                      params: { mode: 'address' },
-                    },
-                  });
-                }
-
-                return navigation.navigate(RootRoutes.Modal, {
-                  screen: ModalRoutes.CreateAccount,
-                  params: {
-                    screen: CreateAccountModalRoutes.CreateAccountForm,
-                    params: {
-                      walletId: activeWallet.id,
-                    },
-                  },
-                });
-              }}
+            // onPress={() => {
+            //   backgroundApiProxy.serviceAccount.changeActiveAccount({
+            //     account: item,
+            //     wallet: activeWallet,
+            //   });
+            //   setTimeout(() => {
+            //     navigation.dispatch(DrawerActions.closeDrawer());
+            //   });
+            // }}
             >
               {({ isHovered }) => (
                 <HStack
-                  p={2}
-                  borderRadius="xl"
-                  space={3}
+                  p="7px"
                   borderWidth={1}
-                  borderColor={isHovered ? 'border-hovered' : 'border-subdued'}
-                  borderStyle="dashed"
+                  borderColor={isHovered ? 'border-hovered' : 'transparent'}
+                  // bg={
+                  //   currentSelectedAccount?.id === item.id
+                  //     ? 'surface-selected'
+                  //     : 'transparent'
+                  // }
+                  space={4}
+                  borderRadius="xl"
                   alignItems="center"
                 >
-                  <Icon name="PlusCircleOutline" />
-                  <Typography.Body2Strong color="text-subdued">
-                    {intl.formatMessage({ id: 'action__add_account' })}
-                  </Typography.Body2Strong>
+                  <Box flex={1}>
+                    <Account
+                      hiddenAvatar
+                      address={item?.address ?? ''}
+                      name={item.name}
+                    />
+                  </Box>
+                  {renderSideAction(activeWallet?.type, (v) =>
+                    handleChange(item, v),
+                  )}
                 </HStack>
               )}
             </Pressable>
-          }
+          )}
+          renderSectionHeader={({ section: { title, chain } }) => (
+            <Box p={2} bg="surface-subdued" flexDirection="row">
+              <Token chain={chain} size={4} />
+              <Typography.Subheading color="text-subdued" ml={2}>
+                {title}
+              </Typography.Subheading>
+            </Box>
+          )}
         />
+        <Box p={2}>
+          <Pressable
+            onPress={() => {
+              if (!activeWallet) return;
+              if (activeWallet?.type === 'imported') {
+                return navigation.navigate(RootRoutes.Modal, {
+                  screen: ModalRoutes.CreateWallet,
+                  params: {
+                    screen: CreateWalletModalRoutes.AddExistingWalletModal,
+                    params: { mode: 'privatekey' },
+                  },
+                });
+              }
+              if (activeWallet?.type === 'watching') {
+                return navigation.navigate(RootRoutes.Modal, {
+                  screen: ModalRoutes.CreateWallet,
+                  params: {
+                    screen: CreateWalletModalRoutes.AddExistingWalletModal,
+                    params: { mode: 'address' },
+                  },
+                });
+              }
+
+              return navigation.navigate(RootRoutes.Modal, {
+                screen: ModalRoutes.CreateAccount,
+                params: {
+                  screen: CreateAccountModalRoutes.CreateAccountForm,
+                  params: {
+                    walletId: activeWallet.id,
+                  },
+                },
+              });
+            }}
+          >
+            {({ isHovered }) => (
+              <HStack
+                py={3}
+                borderRadius="xl"
+                space={3}
+                borderWidth={1}
+                borderColor={isHovered ? 'border-hovered' : 'border-subdued'}
+                borderStyle="dashed"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Icon name="UserAddOutline" />
+                <Typography.Body2Strong color="text-subdued">
+                  {intl.formatMessage({ id: 'action__add_account' })}
+                </Typography.Body2Strong>
+              </HStack>
+            )}
+          </Pressable>
+        </Box>
       </VStack>
       {RemoveAccountDialog}
       <AccountModifyNameDialog
