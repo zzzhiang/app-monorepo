@@ -14,7 +14,6 @@ import { setAutoRefreshTimeStamp } from '@onekeyhq/kit/src/store/reducers/settin
 import { updateWallets } from '@onekeyhq/kit/src/store/reducers/wallet';
 
 import backgroundApiProxy from '../background/instance/backgroundApiProxy';
-import { passwordSet } from '../store/reducers/data';
 
 const EngineApp: FC = ({ children }) => {
   const networks = useAppSelector((s) => s.network.network);
@@ -22,7 +21,7 @@ const EngineApp: FC = ({ children }) => {
   const { refreshTimeStamp } = useSettings();
   const { account } = useActiveWalletAccount();
 
-  const { dispatch } = backgroundApiProxy;
+  const { dispatch, serviceApp } = backgroundApiProxy;
 
   const handleFiatMoneyUpdate = useCallback(async () => {
     const fiatMoney = await backgroundApiProxy.engine.listFiats();
@@ -36,14 +35,6 @@ const EngineApp: FC = ({ children }) => {
   useSWR('auto-refresh', () => dispatch(setAutoRefreshTimeStamp()), {
     refreshInterval: 1 * 60 * 1000,
   });
-
-  const hideSplashScreen = useCallback(async () => {
-    await SplashScreen.hideAsync();
-  }, []);
-
-  useEffect(() => {
-    backgroundApiProxy.serviceApp.initNetworks();
-  }, []);
 
   useEffect(() => {
     async function main() {
@@ -115,13 +106,9 @@ const EngineApp: FC = ({ children }) => {
   useEffect(() => {
     async function main() {
       try {
-        const isMasterPasswordSet =
-          await backgroundApiProxy.engine.isMasterPasswordSet();
-        if (isMasterPasswordSet) {
-          dispatch(passwordSet());
-        }
+        await serviceApp.initApp();
       } finally {
-        hideSplashScreen();
+        await SplashScreen.hideAsync();
       }
     }
     main();
