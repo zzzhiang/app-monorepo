@@ -4,10 +4,10 @@ import { useIntl } from 'react-intl';
 import { Platform, Share } from 'react-native';
 
 import { Box, useIsSmallLayout } from '@onekeyhq/components';
+import { copyToClipboard } from '@onekeyhq/components/src/utils/ClipboardUtils';
 import WebView from '@onekeyhq/kit/src/components/WebView';
 import { useToast } from '@onekeyhq/kit/src/hooks';
 import useOpenBrowser from '@onekeyhq/kit/src/hooks/useOpenBrowser';
-import { copyToClipboard } from '@onekeyhq/kit/src/utils/ClipboardUtils';
 
 import Home from '../Home';
 
